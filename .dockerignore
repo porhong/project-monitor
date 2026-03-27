@@ -1,0 +1,34 @@
+# Dependencies — reinstalled inside the image
+node_modules
+
+# Build output — rebuilt inside the image
+.next
+
+# Local database — never bake data into the image
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Environment files — injected at runtime via Docker env / secrets
+.env
+.env.local
+.env.*.local
+
+# Development / tooling artefacts
+.git
+.gitignore
+.github
+
+# Editor / OS noise
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Docker files themselves (no need to COPY into the image)
+Dockerfile
+.dockerignore
+docker-compose*.yml

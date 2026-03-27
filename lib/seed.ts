@@ -6,6 +6,11 @@ export async function seedDefaultAdmin(): Promise<void> {
   const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD ?? "Admin@1234"
   const adminName = process.env.DEFAULT_ADMIN_NAME ?? "Admin"
 
+  // Import auth first — this initialises better-auth and triggers its
+  // synchronous CREATE TABLE IF NOT EXISTS for the user/session/account tables.
+  // Must happen before any raw SQL that touches those tables.
+  const { auth } = await import("@/lib/auth")
+
   const db = new BetterSQLite3(path.join(process.cwd(), "data", "app.db"))
 
   try {
@@ -25,7 +30,6 @@ export async function seedDefaultAdmin(): Promise<void> {
     }
 
     // Create the user through Better Auth so the password is properly hashed
-    const { auth } = await import("@/lib/auth")
     const result = await auth.api.signUpEmail({
       body: { email: adminEmail, password: adminPassword, name: adminName },
     })

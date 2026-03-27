@@ -1,0 +1,44 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Target the final "runner" stage (default, explicit for clarity)
+      target: runner
+    image: project-monitor:latest
+    container_name: project-monitor
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    # Load env vars from .env.local (not copied into the image — only passed at
+    # runtime). For production, replace with a .env file or inject secrets via
+    # your orchestrator and remove this block.
+    env_file:
+      - .env.local
+    environment:
+      # Secrets (BETTER_AUTH_SECRET, ADMIN_SEED_SECRET, DEFAULT_ADMIN_PASSWORD, etc.)
+      # are intentionally omitted here — they come from env_file above.
+      # Only Docker-specific URL defaults are set here, and only when the host
+      # shell does not already export these variables (the :-fallback is ignored
+      # when env_file already set the var; environment: takes priority otherwise).
+
+      # URLs default to port 3001 for Docker; override per-environment as needed.
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3001}
+
+      # Non-secret defaults (safe to inline)
+      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL:-admin@projectmonitor.local}
+      DEFAULT_ADMIN_NAME: ${DEFAULT_ADMIN_NAME:-Admin}
+    volumes:
+      # Persist the SQLite database across container restarts / upgrades
+      - sqlite-data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  sqlite-data:
+    driver: local
