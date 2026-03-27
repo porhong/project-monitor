@@ -1,4 +1,6 @@
+import { headers } from "next/headers"
 import { getProjectById } from "@/lib/db/queries"
+import { auth } from "@/lib/auth"
 import { notFound } from "next/navigation"
 import { ArrowLeft, GitBranch, Calendar } from "lucide-react"
 import Link from "next/link"
@@ -28,7 +30,11 @@ export async function generateMetadata({ params }: VersionsPageProps) {
 
 export default async function VersionsPage({ params }: VersionsPageProps) {
   const { id } = await params
-  const project = await getProjectById(id)
+  const [project, session] = await Promise.all([
+    getProjectById(id),
+    auth.api.getSession({ headers: await headers() }),
+  ])
+  const isAdmin = session?.user.role === "admin"
 
   if (!project) {
     notFound()
@@ -69,7 +75,7 @@ export default async function VersionsPage({ params }: VersionsPageProps) {
             </div>
           </div>
         </div>
-        <CreateVersionDialog projectId={project.id} projectName={project.name} />
+        {isAdmin && <CreateVersionDialog projectId={project.id} projectName={project.name} isAdmin={isAdmin} />}
       </div>
 
       {/* Versions List */}
@@ -108,11 +114,13 @@ export default async function VersionsPage({ params }: VersionsPageProps) {
                     version={version}
                     modules={project.modules}
                     projectId={project.id}
+                    isAdmin={isAdmin}
                   />
                   <DeleteVersionButton
                     projectId={project.id}
                     versionId={version.id}
                     versionName={version.name}
+                    isAdmin={isAdmin}
                   />
                 </div>
               </div>

@@ -11,9 +11,11 @@ interface DeleteModuleButtonProps {
   projectId: string
   moduleId: string
   moduleName: string
+  isAdmin: boolean
 }
 
-export function DeleteModuleButton({ projectId, moduleId, moduleName }: DeleteModuleButtonProps) {
+export function DeleteModuleButton({ projectId, moduleId, moduleName, isAdmin }: DeleteModuleButtonProps) {
+  if (!isAdmin) return null
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 

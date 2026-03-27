@@ -94,9 +94,11 @@ function parseJson(raw: string): ParseResult | ParseError {
 interface ImportModulesDialogProps {
   projectId: string
   projectName: string
+  isAdmin: boolean
 }
 
-export function ImportModulesDialog({ projectId, projectName }: ImportModulesDialogProps) {
+export function ImportModulesDialog({ projectId, projectName, isAdmin }: ImportModulesDialogProps) {
+  if (!isAdmin) return null
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [jsonText, setJsonText] = useState("")

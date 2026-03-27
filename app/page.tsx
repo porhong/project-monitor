@@ -1,9 +1,19 @@
+import Link from "next/link"
+import { headers } from "next/headers"
+import { Users } from "lucide-react"
 import { getAllProjects } from "@/lib/db/queries"
+import { auth } from "@/lib/auth"
+import { Button } from "@/components/ui/button"
 import { CreateProjectDialog } from "@/components/project-monitor/dialogs/create-project-dialog"
 import { ProjectCard } from "@/components/project-monitor/project-card"
+import { SignOutButton } from "@/components/auth/sign-out-button"
 
 export default async function Page() {
-  const projects = await getAllProjects()
+  const [projects, session] = await Promise.all([
+    getAllProjects(),
+    auth.api.getSession({ headers: await headers() }),
+  ])
+  const isAdmin = session?.user.role === "admin"
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-8">
@@ -15,7 +25,23 @@ export default async function Page() {
             Manage and monitor your projects
           </p>
         </div>
-        <CreateProjectDialog />
+        <div className="flex items-center gap-2">
+          {isAdmin && <CreateProjectDialog isAdmin={isAdmin} />}
+          {isAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 font-mono text-xs tracking-wide"
+              asChild
+            >
+              <Link href="/admin/users">
+                <Users className="size-3.5" />
+                Users
+              </Link>
+            </Button>
+          )}
+          <SignOutButton />
+        </div>
       </div>
 
       {/* Project list */}
@@ -26,7 +52,7 @@ export default async function Page() {
           </p>
         )}
         {projects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+          <ProjectCard key={project.id} project={project} isAdmin={isAdmin} />
         ))}
       </section>
 

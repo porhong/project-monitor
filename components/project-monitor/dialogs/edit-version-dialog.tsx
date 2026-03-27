@@ -24,9 +24,11 @@ interface EditVersionDialogProps {
   version: Version
   modules: Module[]
   projectId: string
+  isAdmin: boolean
 }
 
-export function EditVersionDialog({ version, modules, projectId }: EditVersionDialogProps) {
+export function EditVersionDialog({ version, modules, projectId, isAdmin }: EditVersionDialogProps) {
+  if (!isAdmin) return null
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [open, setOpen] = useState(false)

@@ -22,9 +22,11 @@ import type { Module } from "@/lib/types"
 interface EditModuleDialogProps {
   projectId: string
   module: Module
+  isAdmin: boolean
 }
 
-export function EditModuleDialog({ projectId, module }: EditModuleDialogProps) {
+export function EditModuleDialog({ projectId, module, isAdmin }: EditModuleDialogProps) {
+  if (!isAdmin) return null
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [open, setOpen] = useState(false)

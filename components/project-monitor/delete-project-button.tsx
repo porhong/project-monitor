@@ -10,9 +10,11 @@ import { deleteProject } from "@/app/actions"
 interface DeleteProjectButtonProps {
   projectId: string
   projectName: string
+  isAdmin: boolean
 }
 
-export function DeleteProjectButton({ projectId, projectName }: DeleteProjectButtonProps) {
+export function DeleteProjectButton({ projectId, projectName, isAdmin }: DeleteProjectButtonProps) {
+  if (!isAdmin) return null
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 

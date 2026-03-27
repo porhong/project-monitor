@@ -20,9 +20,11 @@ import { Textarea } from "@/components/ui/textarea"
 interface CreateModuleDialogProps {
   projectId: string
   projectName: string
+  isAdmin: boolean
 }
 
-export function CreateModuleDialog({ projectId, projectName }: CreateModuleDialogProps) {
+export function CreateModuleDialog({ projectId, projectName, isAdmin }: CreateModuleDialogProps) {
+  if (!isAdmin) return null
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [open, setOpen] = useState(false)

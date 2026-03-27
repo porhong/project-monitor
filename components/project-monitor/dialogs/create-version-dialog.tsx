@@ -19,9 +19,11 @@ import { Label } from "@/components/ui/label"
 interface CreateVersionDialogProps {
   projectId: string
   projectName: string
+  isAdmin: boolean
 }
 
-export function CreateVersionDialog({ projectId, projectName }: CreateVersionDialogProps) {
+export function CreateVersionDialog({ projectId, projectName, isAdmin }: CreateVersionDialogProps) {
+  if (!isAdmin) return null
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [open, setOpen] = useState(false)

@@ -7,9 +7,10 @@ import type { Project } from "@/lib/types"
 
 interface ProjectCardProps {
   project: Project
+  isAdmin: boolean
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, isAdmin }: ProjectCardProps) {
   const latestVersion = project.versions[project.versions.length - 1]
   const totalFeatures = latestVersion
     ? latestVersion.entries.reduce((sum, e) => sum + e.moduleSize, 0)
@@ -42,7 +43,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
           </div>
         </Link>
-        <DeleteProjectButton projectId={project.id} projectName={project.name} />
+        <DeleteProjectButton projectId={project.id} projectName={project.name} isAdmin={isAdmin} />
       </CardContent>
     </Card>
   )

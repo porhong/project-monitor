@@ -71,9 +71,10 @@ interface VersionPanelProps {
   projectName: string
   versions: Version[]
   modules: Module[]
+  isAdmin: boolean
 }
 
-export function VersionPanel({ projectId, projectName, versions, modules }: VersionPanelProps) {
+export function VersionPanel({ projectId, projectName, versions, modules, isAdmin }: VersionPanelProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -90,7 +91,7 @@ export function VersionPanel({ projectId, projectName, versions, modules }: Vers
     return (
       <div className="flex flex-col items-start gap-2">
         <p className="text-sm text-muted-foreground">No versions yet.</p>
-        <CreateVersionDialog projectId={projectId} projectName={projectName} />
+        {isAdmin && <CreateVersionDialog projectId={projectId} projectName={projectName} isAdmin={isAdmin} />}
       </div>
     )
   }
@@ -110,7 +111,7 @@ export function VersionPanel({ projectId, projectName, versions, modules }: Vers
             </TabsTrigger>
           ))}
         </TabsList>
-        <CreateVersionDialog projectId={projectId} projectName={projectName} />
+        {isAdmin && <CreateVersionDialog projectId={projectId} projectName={projectName} isAdmin={isAdmin} />}
       </div>
       {sortedVersions.map((v) => (
         <TabsContent key={v.id} value={v.id} className="mt-3">
@@ -129,16 +130,19 @@ export function VersionPanel({ projectId, projectName, versions, modules }: Vers
                   version={v}
                   modules={modules}
                   projectId={projectId}
+                  isAdmin={isAdmin}
                 />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive"
-                  disabled={isPending}
-                  onClick={() => handleDeleteVersion(v.id, v.name)}
-                >
-                  Delete
-                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                    disabled={isPending}
+                    onClick={() => handleDeleteVersion(v.id, v.name)}
+                  >
+                    Delete
+                  </Button>
+                )}
               </div>
             </div>
             <Separator />

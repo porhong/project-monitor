@@ -1,4 +1,6 @@
+import { headers } from "next/headers"
 import { getProjectById } from "@/lib/db/queries"
+import { auth } from "@/lib/auth"
 import { notFound } from "next/navigation"
 import { ArrowLeft, Boxes, Calendar } from "lucide-react"
 import Link from "next/link"
@@ -29,7 +31,11 @@ export async function generateMetadata({ params }: ModulesPageProps) {
 
 export default async function ModulesPage({ params }: ModulesPageProps) {
   const { id } = await params
-  const project = await getProjectById(id)
+  const [project, session] = await Promise.all([
+    getProjectById(id),
+    auth.api.getSession({ headers: await headers() }),
+  ])
+  const isAdmin = session?.user.role === "admin"
 
   if (!project) {
     notFound()
@@ -73,10 +79,12 @@ export default async function ModulesPage({ params }: ModulesPageProps) {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <ImportModulesDialog projectId={project.id} projectName={project.name} />
-          <CreateModuleDialog projectId={project.id} projectName={project.name} />
-        </div>
+        {isAdmin && (
+          <div className="flex items-center gap-2">
+            <ImportModulesDialog projectId={project.id} projectName={project.name} isAdmin={isAdmin} />
+            <CreateModuleDialog projectId={project.id} projectName={project.name} isAdmin={isAdmin} />
+          </div>
+        )}
       </div>
 
       {/* Modules List */}
@@ -110,8 +118,8 @@ export default async function ModulesPage({ params }: ModulesPageProps) {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    <EditModuleDialog projectId={project.id} module={mod} />
-                    <DeleteModuleButton projectId={project.id} moduleId={mod.id} moduleName={mod.name} />
+                    <EditModuleDialog projectId={project.id} module={mod} isAdmin={isAdmin} />
+                    <DeleteModuleButton projectId={project.id} moduleId={mod.id} moduleName={mod.name} isAdmin={isAdmin} />
                   </div>
                 </div>
               </Card>

@@ -11,9 +11,11 @@ interface DeleteVersionButtonProps {
   projectId: string
   versionId: string
   versionName: string
+  isAdmin: boolean
 }
 
-export function DeleteVersionButton({ projectId, versionId, versionName }: DeleteVersionButtonProps) {
+export function DeleteVersionButton({ projectId, versionId, versionName, isAdmin }: DeleteVersionButtonProps) {
+  if (!isAdmin) return null
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
