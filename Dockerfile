@@ -69,8 +69,8 @@ RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 USER nextjs
 
 # Must match the port passed to `next start` in package.json
-EXPOSE 3001
-ENV PORT=3001
+EXPOSE 3000
+ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # node server.js is the standalone entry-point emitted by Next.js
