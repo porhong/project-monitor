@@ -31,6 +31,7 @@ export function CreateUserDialog({ currentUserRole }: CreateUserDialogProps) {
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [role, setRole] = useState<UserRole>("visitor")
+  const roleId = "create-user-role"
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -85,10 +86,12 @@ export function CreateUserDialog({ currentUserRole }: CreateUserDialogProps) {
             <Input id="password" name="password" type="password" required minLength={8} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="font-mono text-xs">Role</Label>
+            <Label htmlFor={roleId} className="font-mono text-xs">
+              Role
+            </Label>
             <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
-              <SelectTrigger>
-                <SelectValue />
+              <SelectTrigger id={roleId}>
+                <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="visitor">Visitor</SelectItem>

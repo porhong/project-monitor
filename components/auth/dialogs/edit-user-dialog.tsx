@@ -41,6 +41,7 @@ export function EditUserDialog({
   const [open, setOpen] = useState(false)
   const [role, setRole] = useState<UserRole>(currentRole)
   const [isPending, startTransition] = useTransition()
+  const roleId = `edit-user-role-${userId}`
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -78,10 +79,12 @@ export function EditUserDialog({
                 Changing role for <span className="font-medium text-foreground">{userName}</span>
               </p>
               <div className="flex flex-col gap-1.5">
-                <Label className="font-mono text-xs">Role</Label>
+                <Label htmlFor={roleId} className="font-mono text-xs">
+                  Role
+                </Label>
                 <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
-                  <SelectTrigger>
-                    <SelectValue />
+                  <SelectTrigger id={roleId}>
+                    <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="visitor">Visitor</SelectItem>

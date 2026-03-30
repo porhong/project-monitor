@@ -202,11 +202,10 @@ export function ImportModulesDialog({ projectId, projectName, isAdmin }: ImportM
           {/* Validation feedback */}
           {jsonText.trim() && (
             <div
-              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${
-                result.valid
+              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${result.valid
                   ? "bg-green-500/10 text-green-700 dark:text-green-400"
                   : "bg-destructive/10 text-destructive"
-              }`}
+                }`}
             >
               {result.valid ? (
                 <>
