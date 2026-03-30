@@ -2,14 +2,14 @@ import type { EChartsOption } from "echarts"
 import type { Project, TreemapNodeData } from "@/lib/types"
 
 const STATUS_COLORS: Record<string, string> = {
-  "not-started": "#ef4444", // red-500
-  "in-progress": "#3b82f6", // blue-500
-  "pending": "#f97316", // orange-500
-  "blocked": "#86efac", // light green (lime-400) for "needs improvement"
-  "completed": "#22c55e", // green-500
+  "not-started": "#b85c58", // muted dusty red
+  "in-progress": "#5b82b5", // muted slate blue
+  "pending": "#d4824a",     // muted earthy orange (echoes theme primary)
+  "blocked": "#7aab8a",     // muted sage green
+  "completed": "#3d7a58",   // muted dark forest green
 }
 
-const PARENT_COLOR = "#9ca3af" // gray-400 for project nodes
+const PARENT_COLOR = "#9c9287" // warm gray for project nodes
 
 export function buildTreemapOption(
   projects: Project[],
@@ -43,6 +43,7 @@ export function buildTreemapOption(
         itemStyle: {
           color: STATUS_COLORS[status] ?? STATUS_COLORS["not-started"],
         },
+        entryData: entry,
       }
     })
 
@@ -97,19 +98,18 @@ export function buildTreemapOption(
           show: true,
           height: 30,
           formatter: "{b}",
-          color: "#333",
+          color: "#3d342c",
         },
         itemStyle: {
-          borderColor: "#fff",
+          borderColor: "#f0ebe4",
           borderWidth: 2,
           gapWidth: 2,
-          // Use status-based coloring
         },
         levels: [
           {
             itemStyle: {
               borderWidth: 3,
-              borderColor: "#555",
+              borderColor: "#6b6058",
               gapWidth: 3,
             },
             upperLabel: { show: true },

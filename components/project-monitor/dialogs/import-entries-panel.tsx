@@ -21,6 +21,11 @@ function buildTemplate(modules: Module[]): string {
     moduleSize: 1,
     status: "not-started",
     description: "",
+    overview: "",
+    scope: "",
+    resources: "",
+    constraints: "",
+    schedule: "",
   }))
   return JSON.stringify(items, null, 2)
 }
@@ -106,9 +111,15 @@ function parseEntries(raw: string, modules: Module[]): ParseResult {
       description = obj["description"] as string
     }
 
+    const overview = typeof obj["overview"] === "string" ? obj["overview"] : ""
+    const scope = typeof obj["scope"] === "string" ? obj["scope"] : ""
+    const resources = typeof obj["resources"] === "string" ? obj["resources"] : ""
+    const constraints = typeof obj["constraints"] === "string" ? obj["constraints"] : ""
+    const schedule = typeof obj["schedule"] === "string" ? obj["schedule"] : ""
+
     entries.push({
       moduleId: mod.id,
-      entry: { moduleId: mod.id, moduleSize, status, description },
+      entry: { moduleId: mod.id, moduleSize, status, description, overview, scope, resources, constraints, schedule },
     })
   }
 

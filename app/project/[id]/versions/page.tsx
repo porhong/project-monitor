@@ -25,11 +25,13 @@ export async function generateMetadata({ params }: VersionsPageProps) {
 
 export default async function VersionsPage({ params }: VersionsPageProps) {
   const { id } = await params
+  const requestHeaders = await headers()
   const [project, session] = await Promise.all([
     getProjectById(id),
-    auth.api.getSession({ headers: await headers() }),
+    auth.api.getSession({ headers: requestHeaders }),
   ])
-  const isAdmin = session?.user.role === "admin"
+  const role = session?.user.role
+  const canManageContent = role === "super-admin" || role === "admin"
 
   if (!project) notFound()
 
@@ -53,11 +55,11 @@ export default async function VersionsPage({ params }: VersionsPageProps) {
             <span className="text-muted-foreground/40">/</span>
             <span className="font-semibold">Versions</span>
           </div>
-          {isAdmin && (
+          {canManageContent && (
             <CreateVersionDialog
               projectId={project.id}
               projectName={project.name}
-              isAdmin={isAdmin}
+              isAdmin={canManageContent}
             />
           )}
         </div>
@@ -81,7 +83,7 @@ export default async function VersionsPage({ params }: VersionsPageProps) {
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-20 text-center">
             <GitBranch className="mb-3 size-10 text-muted-foreground/40" />
             <p className="text-sm font-medium">No versions yet</p>
-            {isAdmin && (
+            {canManageContent && (
               <p className="mt-1 text-xs text-muted-foreground">
                 Click &ldquo;New Version&rdquo; above to get started.
               </p>
@@ -125,13 +127,13 @@ export default async function VersionsPage({ params }: VersionsPageProps) {
                       version={version}
                       modules={project.modules}
                       projectId={project.id}
-                      isAdmin={isAdmin}
+                      isAdmin={canManageContent}
                     />
                     <DeleteVersionButton
                       projectId={project.id}
                       versionId={version.id}
                       versionName={version.name}
-                      isAdmin={isAdmin}
+                      isAdmin={canManageContent}
                     />
                   </div>
                 </CardContent>

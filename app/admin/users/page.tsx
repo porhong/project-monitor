@@ -13,7 +13,7 @@ export default async function AdminUsersPage() {
   const session = await auth.api.getSession({ headers: await headers() })
 
   if (!session) redirect("/sign-in")
-  if (session.user.role !== "admin") redirect("/")
+  if (session.user.role !== "super-admin") redirect("/")
 
   const { users } = await auth.api.listUsers({
     query: { limit: 1000 },
@@ -40,7 +40,7 @@ export default async function AdminUsersPage() {
             </p>
           </div>
         </div>
-        <CreateUserDialog />
+        <CreateUserDialog currentUserRole="super-admin" />
       </div>
 
       <UsersTable
@@ -53,6 +53,7 @@ export default async function AdminUsersPage() {
           createdAt: u.createdAt,
         }))}
         currentUserId={session.user.id}
+        currentUserRole="super-admin"
       />
     </div>
   )

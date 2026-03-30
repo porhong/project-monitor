@@ -10,11 +10,15 @@ import { ProjectCard } from "@/components/project-monitor/project-card"
 import { SignOutButton } from "@/components/auth/sign-out-button"
 
 export default async function Page() {
+  // Await headers() first — it throws during `next build` static-generation
+  // attempts, which prevents getAllProjects() from ever being called with an
+  // empty in-memory DB.  At request time it resolves normally.
+  const requestHeaders = await headers()
   const [projects, session] = await Promise.all([
     getAllProjects(),
-    auth.api.getSession({ headers: await headers() }),
+    auth.api.getSession({ headers: requestHeaders }),
   ])
-  const isAdmin = session?.user.role === "admin"
+  const isAdmin = session?.user.role === "super-admin"
 
   return (
     <div className="min-h-screen bg-background">

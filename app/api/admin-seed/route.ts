@@ -19,7 +19,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: `No user found with email: ${email}` }, { status: 404 })
   }
 
-  await auth.api.setRole({ body: { userId: user.id, role: "admin" }, headers: request.headers })
+  await auth.api.setRole({
+    body: { userId: user.id, role: "super-admin" },
+    headers: request.headers,
+  })
 
-  return NextResponse.json({ success: true, message: `User ${email} promoted to admin` })
+  return NextResponse.json({ success: true, message: `User ${email} promoted to super-admin` })
 }

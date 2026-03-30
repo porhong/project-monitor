@@ -15,6 +15,13 @@
       "when": 1774426645535,
       "tag": "0001_rename_percent_to_module_size",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1774426645600,
+      "tag": "0002_add_module_entry_detail_fields",
+      "breakpoints": true
     }
   ]
 }

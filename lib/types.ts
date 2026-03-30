@@ -11,6 +11,11 @@ export interface ModuleEntry {
   moduleSize: number
   status: Status
   description: string
+  overview?: string
+  scope?: string
+  resources?: string
+  constraints?: string
+  schedule?: string
 }
 
 export interface Version {
@@ -33,6 +38,8 @@ export interface TreemapNodeData {
   name: string
   value: number
   moduleSize?: number
+  status?: string
   itemStyle?: { color: string }
   children?: TreemapNodeData[]
+  entryData?: ModuleEntry
 }

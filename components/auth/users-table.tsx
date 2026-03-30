@@ -28,6 +28,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { EditUserDialog } from "@/components/auth/dialogs/edit-user-dialog"
 import { ResetPasswordDialog } from "@/components/auth/dialogs/reset-password-dialog"
 import { banUser, unbanUser, revokeUserSessions, deleteUser } from "@/app/admin/users/actions"
+import type { UserRole } from "@/lib/auth"
 
 interface User {
   id: string
@@ -41,6 +42,7 @@ interface User {
 interface UsersTableProps {
   users: User[]
   currentUserId: string
+  currentUserRole: UserRole
 }
 
 function formatDate(date: Date) {
@@ -51,7 +53,37 @@ function formatDate(date: Date) {
   }).format(new Date(date))
 }
 
-function UserRow({ user, currentUserId }: { user: User; currentUserId: string }) {
+function RoleBadge({ role }: { role: string }) {
+  if (role === "super-admin") {
+    return (
+      <Badge className="bg-violet-600 font-mono text-xs text-white hover:bg-violet-600">
+        super-admin
+      </Badge>
+    )
+  }
+  if (role === "admin") {
+    return (
+      <Badge variant="default" className="font-mono text-xs">
+        admin
+      </Badge>
+    )
+  }
+  return (
+    <Badge variant="secondary" className="font-mono text-xs">
+      {role}
+    </Badge>
+  )
+}
+
+function UserRow({
+  user,
+  currentUserId,
+  currentUserRole,
+}: {
+  user: User
+  currentUserId: string
+  currentUserRole: UserRole
+}) {
   const [isPending, startTransition] = useTransition()
   const isSelf = user.id === currentUserId
   const isBanned = user.banned === true
@@ -85,12 +117,7 @@ function UserRow({ user, currentUserId }: { user: User; currentUserId: string })
       <TableCell className="font-medium">{user.name}</TableCell>
       <TableCell className="font-mono text-sm text-muted-foreground">{user.email}</TableCell>
       <TableCell>
-        <Badge
-          variant={user.role === "admin" ? "default" : "secondary"}
-          className="font-mono text-xs"
-        >
-          {user.role}
-        </Badge>
+        <RoleBadge role={user.role} />
       </TableCell>
       <TableCell>
         {isBanned ? (
@@ -112,7 +139,8 @@ function UserRow({ user, currentUserId }: { user: User; currentUserId: string })
           <EditUserDialog
             userId={user.id}
             userName={user.name}
-            currentRole={user.role as "admin" | "visitor"}
+            currentRole={(user.role as UserRole) ?? "visitor"}
+            currentUserRole={currentUserRole}
             isSelf={isSelf}
           />
 
@@ -198,7 +226,7 @@ function UserRow({ user, currentUserId }: { user: User; currentUserId: string })
   )
 }
 
-export function UsersTable({ users, currentUserId }: UsersTableProps) {
+export function UsersTable({ users, currentUserId, currentUserRole }: UsersTableProps) {
   return (
     <div className="rounded-lg border">
       <Table>
@@ -221,7 +249,12 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
             </TableRow>
           ) : (
             users.map((user) => (
-              <UserRow key={user.id} user={user} currentUserId={currentUserId} />
+              <UserRow
+                key={user.id}
+                user={user}
+                currentUserId={currentUserId}
+                currentUserRole={currentUserRole}
+              />
             ))
           )}
         </TableBody>

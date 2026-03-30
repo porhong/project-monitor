@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm"
 import { db } from "@/lib/db/index"
 import { moduleEntries, modules, projects, versions } from "@/lib/db/schema"
 import type { ModuleEntry } from "@/lib/types"
-import { requireAdmin } from "@/lib/auth-guard"
+import { requireSuperAdmin, requireAdminOrSuperAdmin } from "@/lib/auth-guard"
 
 function uuid(): string {
   return crypto.randomUUID()
@@ -18,7 +18,7 @@ function now(): string {
 // ── Projects ──────────────────────────────────────────────
 
 export async function createProject(name: string, description?: string): Promise<void> {
-  await requireAdmin()
+  await requireSuperAdmin()
   db.insert(projects)
     .values({ id: uuid(), name, description: description ?? null, createdAt: now() })
     .run()
@@ -26,7 +26,7 @@ export async function createProject(name: string, description?: string): Promise
 }
 
 export async function deleteProject(projectId: string): Promise<void> {
-  await requireAdmin()
+  await requireSuperAdmin()
   db.delete(projects).where(eq(projects.id, projectId)).run()
   revalidatePath("/")
 }
@@ -38,7 +38,7 @@ export async function createModule(
   name: string,
   description?: string,
 ): Promise<void> {
-  await requireAdmin()
+  await requireAdminOrSuperAdmin()
   db.insert(modules)
     .values({ id: uuid(), projectId, name, description: description ?? null })
     .run()
@@ -46,7 +46,7 @@ export async function createModule(
 }
 
 export async function deleteModule(projectId: string, moduleId: string): Promise<void> {
-  await requireAdmin()
+  await requireAdminOrSuperAdmin()
   db.delete(modules).where(eq(modules.id, moduleId)).run()
   revalidatePath("/")
   revalidatePath(`/project/${projectId}`)
@@ -58,7 +58,7 @@ export async function updateModule(
   name: string,
   description?: string,
 ): Promise<void> {
-  await requireAdmin()
+  await requireAdminOrSuperAdmin()
   db
     .update(modules)
     .set({ name, description: description ?? null })
@@ -72,7 +72,7 @@ export async function importModules(
   projectId: string,
   items: Array<{ name: string; description?: string }>,
 ): Promise<{ imported: number }> {
-  await requireAdmin()
+  await requireAdminOrSuperAdmin()
   let imported = 0
   for (const item of items) {
     const trimmed = item.name.trim()
@@ -91,7 +91,7 @@ export async function importModules(
 // ── Versions ──────────────────────────────────────────────
 
 export async function createVersion(projectId: string, name: string): Promise<void> {
-  await requireAdmin()
+  await requireAdminOrSuperAdmin()
   db.insert(versions)
     .values({ id: uuid(), projectId, name, createdAt: now() })
     .run()
@@ -99,7 +99,7 @@ export async function createVersion(projectId: string, name: string): Promise<vo
 }
 
 export async function deleteVersion(projectId: string, versionId: string): Promise<void> {
-  await requireAdmin()
+  await requireAdminOrSuperAdmin()
   db.delete(versions).where(eq(versions.id, versionId)).run()
   revalidatePath("/")
   revalidatePath(`/project/${projectId}`)
@@ -111,7 +111,7 @@ export async function updateVersion(
   versionId: string,
   name: string,
 ): Promise<void> {
-  await requireAdmin()
+  await requireAdminOrSuperAdmin()
   db
     .update(versions)
     .set({ name })
@@ -129,7 +129,7 @@ export async function upsertEntries(
   versionId: string,
   entries: ModuleEntry[],
 ): Promise<void> {
-  await requireAdmin()
+  await requireAdminOrSuperAdmin()
   // Delete existing entries for this version and re-insert
   db.delete(moduleEntries).where(eq(moduleEntries.versionId, versionId)).run()
 
@@ -142,6 +142,11 @@ export async function upsertEntries(
         moduleSize: entry.moduleSize,
         status: entry.status,
         description: entry.description,
+        overview: entry.overview ?? "",
+        scope: entry.scope ?? "",
+        resources: entry.resources ?? "",
+        constraints: entry.constraints ?? "",
+        schedule: entry.schedule ?? "",
       })
       .run()
   }

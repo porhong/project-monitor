@@ -41,21 +41,24 @@ const STATUS_LABEL: Record<Status, string> = {
 }
 
 const STATUS_DOT_COLOR: Record<Status, string> = {
-  completed: "#22c55e",
-  "in-progress": "#3b82f6",
-  pending: "#f97316",
-  blocked: "#86efac",
-  "not-started": "#ef4444",
+  completed: "#3d7a58",
+  "in-progress": "#5b82b5",
+  pending: "#d4824a",
+  blocked: "#7aab8a",
+  "not-started": "#b85c58",
 }
 
 export default async function ProjectPage({ params, searchParams }: ProjectPageProps) {
   const { id } = await params
   const { version: selectedVersionId } = await searchParams
+  const requestHeaders = await headers()
   const [project, session] = await Promise.all([
     getProjectById(id),
-    auth.api.getSession({ headers: await headers() }),
+    auth.api.getSession({ headers: requestHeaders }),
   ])
-  const isAdmin = session?.user.role === "admin"
+  const role = session?.user.role
+  const isSuperAdmin = role === "super-admin"
+  const canManageContent = role === "super-admin" || role === "admin"
 
   if (!project) notFound()
 
@@ -111,7 +114,7 @@ export default async function ProjectPage({ params, searchParams }: ProjectPageP
             <DeleteProjectButton
               projectId={project.id}
               projectName={project.name}
-              isAdmin={isAdmin}
+              isAdmin={isSuperAdmin}
             />
           </div>
         </div>
@@ -220,7 +223,7 @@ export default async function ProjectPage({ params, searchParams }: ProjectPageP
                 <p className="text-sm text-muted-foreground">
                   Create a version to see the project overview.
                 </p>
-                {isAdmin && (
+                {canManageContent && (
                   <Button variant="outline" size="sm" className="mt-4 gap-1.5" asChild>
                     <Link href={`/project/${project.id}/versions`}>
                       <GitBranch className="size-3.5" />

@@ -6,7 +6,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm install:*)",
       "Bash(npx shadcn@latest add dialog input select textarea card badge tabs label separator scroll-area sonner --yes)",
-      "Skill(shadcn)"
+      "Skill(shadcn)",
+      "Bash(npx shadcn@latest add collapsible --yes)"
     ]
   }
 }

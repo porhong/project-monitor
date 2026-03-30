@@ -21,17 +21,25 @@ import {
 } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { setUserRole } from "@/app/admin/users/actions"
+import type { UserRole } from "@/lib/auth"
 
 interface EditUserDialogProps {
   userId: string
   userName: string
-  currentRole: "admin" | "visitor"
+  currentRole: UserRole
+  currentUserRole: UserRole
   isSelf: boolean
 }
 
-export function EditUserDialog({ userId, userName, currentRole, isSelf }: EditUserDialogProps) {
+export function EditUserDialog({
+  userId,
+  userName,
+  currentRole,
+  currentUserRole,
+  isSelf,
+}: EditUserDialogProps) {
   const [open, setOpen] = useState(false)
-  const [role, setRole] = useState<"admin" | "visitor">(currentRole)
+  const [role, setRole] = useState<UserRole>(currentRole)
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -71,13 +79,16 @@ export function EditUserDialog({ userId, userName, currentRole, isSelf }: EditUs
               </p>
               <div className="flex flex-col gap-1.5">
                 <Label className="font-mono text-xs">Role</Label>
-                <Select value={role} onValueChange={(v) => setRole(v as "admin" | "visitor")}>
+                <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="visitor">Visitor</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
+                    {currentUserRole === "super-admin" && (
+                      <SelectItem value="super-admin">Super Admin</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

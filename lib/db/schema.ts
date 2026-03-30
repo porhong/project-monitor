@@ -37,6 +37,11 @@ export const moduleEntries = sqliteTable("module_entries", {
   moduleSize: integer("module_size").notNull().default(1),
   status: text("status").notNull().default("not-started"),
   description: text("description").notNull().default(""),
+  overview: text("overview").notNull().default(""),
+  scope: text("scope").notNull().default(""),
+  resources: text("resources").notNull().default(""),
+  constraints: text("constraints").notNull().default(""),
+  schedule: text("schedule").notNull().default(""),
 })
 
 // --- Relations ---

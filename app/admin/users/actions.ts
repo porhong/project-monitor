@@ -3,7 +3,8 @@
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
-import { requireAdmin } from "@/lib/auth-guard"
+import { requireSuperAdmin } from "@/lib/auth-guard"
+import type { UserRole } from "@/lib/auth"
 
 async function getHeaders() {
   return await headers()
@@ -13,12 +14,12 @@ export async function createUser(data: {
   email: string
   name: string
   password: string
-  role: "admin" | "visitor"
+  role: UserRole
 }): Promise<{ error?: string }> {
-  await requireAdmin()
+  await requireSuperAdmin()
   try {
     await auth.api.createUser({
-      body: { ...data, role: data.role as "admin" | "user" },
+      body: { ...data, role: data.role as unknown as "super-admin" },
       headers: await getHeaders(),
     })
     revalidatePath("/admin/users")
@@ -30,12 +31,12 @@ export async function createUser(data: {
 
 export async function setUserRole(
   userId: string,
-  role: "admin" | "visitor",
+  role: UserRole,
 ): Promise<{ error?: string }> {
-  await requireAdmin()
+  await requireSuperAdmin()
   try {
     await auth.api.setRole({
-      body: { userId, role: role as "admin" | "user" },
+      body: { userId, role: role as unknown as "super-admin" },
       headers: await getHeaders(),
     })
     revalidatePath("/admin/users")
@@ -46,7 +47,7 @@ export async function setUserRole(
 }
 
 export async function banUser(userId: string): Promise<{ error?: string }> {
-  await requireAdmin()
+  await requireSuperAdmin()
   try {
     await auth.api.banUser({
       body: { userId },
@@ -60,7 +61,7 @@ export async function banUser(userId: string): Promise<{ error?: string }> {
 }
 
 export async function unbanUser(userId: string): Promise<{ error?: string }> {
-  await requireAdmin()
+  await requireSuperAdmin()
   try {
     await auth.api.unbanUser({
       body: { userId },
@@ -74,7 +75,7 @@ export async function unbanUser(userId: string): Promise<{ error?: string }> {
 }
 
 export async function revokeUserSessions(userId: string): Promise<{ error?: string }> {
-  await requireAdmin()
+  await requireSuperAdmin()
   try {
     await auth.api.revokeUserSessions({
       body: { userId },
@@ -88,7 +89,7 @@ export async function revokeUserSessions(userId: string): Promise<{ error?: stri
 }
 
 export async function deleteUser(userId: string): Promise<{ error?: string }> {
-  await requireAdmin()
+  await requireSuperAdmin()
   try {
     await auth.api.removeUser({
       body: { userId },
@@ -105,7 +106,7 @@ export async function changeUserPassword(
   userId: string,
   newPassword: string,
 ): Promise<{ error?: string }> {
-  await requireAdmin()
+  await requireSuperAdmin()
   try {
     await auth.api.setUserPassword({
       body: { userId, newPassword },

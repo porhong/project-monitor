@@ -26,11 +26,13 @@ export async function generateMetadata({ params }: ModulesPageProps) {
 
 export default async function ModulesPage({ params }: ModulesPageProps) {
   const { id } = await params
+  const requestHeaders = await headers()
   const [project, session] = await Promise.all([
     getProjectById(id),
-    auth.api.getSession({ headers: await headers() }),
+    auth.api.getSession({ headers: requestHeaders }),
   ])
-  const isAdmin = session?.user.role === "admin"
+  const role = session?.user.role
+  const canManageContent = role === "super-admin" || role === "admin"
 
   if (!project) notFound()
 
@@ -57,17 +59,17 @@ export default async function ModulesPage({ params }: ModulesPageProps) {
             <span className="text-muted-foreground/40">/</span>
             <span className="font-semibold">Modules</span>
           </div>
-          {isAdmin && (
+          {canManageContent && (
             <div className="flex shrink-0 items-center gap-2">
               <ImportModulesDialog
                 projectId={project.id}
                 projectName={project.name}
-                isAdmin={isAdmin}
+                isAdmin={canManageContent}
               />
               <CreateModuleDialog
                 projectId={project.id}
                 projectName={project.name}
-                isAdmin={isAdmin}
+                isAdmin={canManageContent}
               />
             </div>
           )}
@@ -96,7 +98,7 @@ export default async function ModulesPage({ params }: ModulesPageProps) {
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-20 text-center">
             <Boxes className="mb-3 size-10 text-muted-foreground/40" />
             <p className="text-sm font-medium">No modules yet</p>
-            {isAdmin && (
+            {canManageContent && (
               <p className="mt-1 text-xs text-muted-foreground">
                 Click &ldquo;New Module&rdquo; above to get started.
               </p>
@@ -129,13 +131,13 @@ export default async function ModulesPage({ params }: ModulesPageProps) {
                       <EditModuleDialog
                         projectId={project.id}
                         module={mod}
-                        isAdmin={isAdmin}
+                        isAdmin={canManageContent}
                       />
                       <DeleteModuleButton
                         projectId={project.id}
                         moduleId={mod.id}
                         moduleName={mod.name}
-                        isAdmin={isAdmin}
+                        isAdmin={canManageContent}
                       />
                     </div>
                   </CardContent>

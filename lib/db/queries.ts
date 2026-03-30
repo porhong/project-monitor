@@ -33,6 +33,11 @@ export async function getAllProjects(): Promise<Project[]> {
         moduleSize: e.moduleSize,
         status: e.status as Status,
         description: e.description,
+        overview: e.overview,
+        scope: e.scope,
+        resources: e.resources,
+        constraints: e.constraints,
+        schedule: e.schedule,
       })),
     })),
   }))
@@ -70,6 +75,11 @@ export async function getProjectById(id: string): Promise<Project | null> {
         moduleSize: e.moduleSize,
         status: e.status as Status,
         description: e.description,
+        overview: e.overview,
+        scope: e.scope,
+        resources: e.resources,
+        constraints: e.constraints,
+        schedule: e.schedule,
       })),
     })),
   }

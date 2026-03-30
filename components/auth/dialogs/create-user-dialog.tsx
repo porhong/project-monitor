@@ -21,11 +21,16 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createUser } from "@/app/admin/users/actions"
+import type { UserRole } from "@/lib/auth"
 
-export function CreateUserDialog() {
+interface CreateUserDialogProps {
+  currentUserRole: UserRole
+}
+
+export function CreateUserDialog({ currentUserRole }: CreateUserDialogProps) {
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
-  const [role, setRole] = useState<"admin" | "visitor">("visitor")
+  const [role, setRole] = useState<UserRole>("visitor")
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -81,13 +86,16 @@ export function CreateUserDialog() {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label className="font-mono text-xs">Role</Label>
-            <Select value={role} onValueChange={(v) => setRole(v as "admin" | "visitor")}>
+            <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="visitor">Visitor</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                {currentUserRole === "super-admin" && (
+                  <SelectItem value="super-admin">Super Admin</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
