@@ -1,12 +1,15 @@
 "use client"
 
-import { useMemo, useState, useEffect, useCallback } from "react"
+import { useMemo, useState, useEffect, useCallback, useRef } from "react"
 import { buildTreemapOption } from "@/lib/treemap-utils"
-import { TreemapChart } from "@/components/project-monitor/treemap-chart"
+import { TreemapChart, TreemapChartSkeleton } from "@/components/project-monitor/treemap-chart"
 import { ModuleDetailDialog } from "@/components/project-monitor/dialogs/module-detail-dialog"
 import { Button } from "@/components/ui/button"
-import { Maximize2, Minimize2, Home } from "lucide-react"
+import { FileDown, Loader2, Maximize2, Minimize2, RefreshCcw } from "lucide-react"
+import { useExportPdf } from "@/hooks/use-export-pdf"
+import type { EChartsType } from "echarts"
 import type { ModuleEntry, Project, TreemapNodeData } from "@/lib/types"
+import type { PdfReportData } from "@/lib/pdf/types"
 
 /**
  * Look up a module's entry by module name from the projects prop.
@@ -33,6 +36,7 @@ function findModuleEntry(
 interface TreemapSectionProps {
   projects: Project[]
   selectedVersionId?: string
+  reportData?: PdfReportData
 }
 
 interface SelectedEntry {
@@ -40,7 +44,7 @@ interface SelectedEntry {
   entry: ModuleEntry
 }
 
-export function TreemapSection({ projects, selectedVersionId }: TreemapSectionProps) {
+export function TreemapSection({ projects, selectedVersionId, reportData }: TreemapSectionProps) {
   const option = useMemo(
     () => buildTreemapOption(projects, selectedVersionId),
     [projects, selectedVersionId],
@@ -52,17 +56,49 @@ export function TreemapSection({ projects, selectedVersionId }: TreemapSectionPr
   // only guaranteed way to reset ECharts' internal drill-down state.
   const [chartKey, setChartKey] = useState(0)
   const [selectedEntry, setSelectedEntry] = useState<SelectedEntry | null>(null)
+  const [isChartReady, setIsChartReady] = useState(false)
+  const echartsInstanceRef = useRef<EChartsType | null>(null)
+
+  const { handleExport, isExporting } = useExportPdf(
+    () =>
+      echartsInstanceRef.current?.getDataURL({
+        type: "png",
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+      }) ?? null,
+    reportData ?? {
+      projectName: "",
+      projectDescription: "",
+      exportedAt: "",
+      versionName: "",
+      activeModules: 0,
+      totalFeatures: 0,
+      statusCounts: {},
+      moduleRows: [],
+    },
+  )
 
   // Reset drill-down when switching fullscreen (chart remounts anyway)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDrilledDown(false)
+    setIsChartReady(false)
   }, [isFullscreen])
 
   // Reset drill-down when the selected version changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDrilledDown(false)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setChartKey((k) => k + 1)
   }, [selectedVersionId])
+
+  // Reset loading state and clear cached instance whenever the chart key changes (remount)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsChartReady(false)
+    echartsInstanceRef.current = null
+  }, [chartKey])
 
   useEffect(() => {
     if (!isFullscreen) return
@@ -127,47 +163,95 @@ export function TreemapSection({ projects, selectedVersionId }: TreemapSectionPr
           <div className="flex h-12 shrink-0 items-center justify-between border-b px-4">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold">Project Overview</span>
-              {isDrilledDown && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 gap-1.5 px-2 text-xs"
+                onClick={handleReset}
+              >
+                <RefreshCcw className="size-3.5" />
+                Reset View
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              {reportData && (
                 <Button
                   variant="outline"
                   size="sm"
                   className="h-7 gap-1.5 px-2 text-xs"
-                  onClick={handleReset}
+                  onClick={handleExport}
+                  disabled={!isChartReady || isExporting}
+                  title="Export overview as PDF"
                 >
-                  <Home className="size-3.5" />
-                  Reset View
+                  {isExporting ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <FileDown className="size-3.5" />
+                  )}
+                  Export PDF
                 </Button>
               )}
+              <Button variant="ghost" size="sm" onClick={() => setIsFullscreen(false)}>
+                <Minimize2 className="mr-2 size-4" />
+                Exit Fullscreen
+              </Button>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => setIsFullscreen(false)}>
-              <Minimize2 className="mr-2 size-4" />
-              Exit Fullscreen
-            </Button>
           </div>
           <div className="flex-1 p-4">
-            <TreemapChart
-              key={chartKey}
-              option={option}
-              height="calc(100dvh - 80px)"
-              onEvents={onEvents}
-            />
+            <div className="relative h-full">
+              {!isChartReady && (
+                <div className="absolute inset-0 z-10">
+                  <div className="h-full animate-pulse rounded-lg bg-muted" />
+                </div>
+              )}
+              <TreemapChart
+                key={chartKey}
+                option={option}
+                height="calc(100dvh - 80px)"
+                onEvents={onEvents}
+                onChartReady={(instance) => {
+                  setIsChartReady(true)
+                  echartsInstanceRef.current = instance
+                }}
+              />
+            </div>
           </div>
         </div>
       ) : (
-        <div className="relative">
+        <div className="relative min-h-[600px]">
+          {!isChartReady && (
+            <div className="absolute inset-0 z-10">
+              <TreemapChartSkeleton />
+            </div>
+          )}
           <div className="absolute right-2 top-2 z-10 flex items-center gap-1.5">
-            {isDrilledDown && (
+            {reportData && (
               <Button
                 variant="outline"
                 size="sm"
                 className="h-8 gap-1.5 px-2 text-xs opacity-80 hover:opacity-100"
-                onClick={handleReset}
-                title="Reset to default view"
+                onClick={handleExport}
+                disabled={!isChartReady || isExporting}
+                title="Export overview as PDF"
               >
-                <Home className="size-3.5" />
-                Reset
+                {isExporting ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <FileDown className="size-3.5" />
+                )}
+                Export PDF
               </Button>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5 px-2 text-xs opacity-80 hover:opacity-100"
+              onClick={handleReset}
+              title="Reset to default view"
+            >
+              <RefreshCcw className="size-3.5" />
+              Reset
+            </Button>
             <Button
               variant="outline"
               size="icon"
@@ -178,7 +262,15 @@ export function TreemapSection({ projects, selectedVersionId }: TreemapSectionPr
               <Maximize2 className="size-4" />
             </Button>
           </div>
-          <TreemapChart key={chartKey} option={option} onEvents={onEvents} />
+          <TreemapChart
+            key={chartKey}
+            option={option}
+            onEvents={onEvents}
+            onChartReady={(instance) => {
+              setIsChartReady(true)
+              echartsInstanceRef.current = instance
+            }}
+          />
         </div>
       )}
 

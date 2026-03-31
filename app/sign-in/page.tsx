@@ -2,6 +2,7 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { SignInForm } from "@/components/auth/sign-in-form"
+import Image from "next/image"
 
 export const metadata = { title: "Sign In — Project Monitor" }
 
@@ -13,12 +14,18 @@ export default async function SignInPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
       {/* Decorative left panel — always dark */}
       <div className="auth-dot-grid relative hidden flex-col justify-between bg-zinc-950 p-12 lg:flex">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-white/3 via-transparent to-transparent" />
 
         {/* Monogram + name */}
         <div className="relative z-10 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-sm border border-white/15 bg-white/5">
-            <span className="font-mono text-xs font-bold tracking-widest text-white">PM</span>
+          <div className="relative h-9 w-9">
+            <Image
+              width={36}
+              height={36}
+              src="/logo.webp"
+              alt="Project Monitor"
+              className="h-full w-full object-contain p-1"
+            />
           </div>
           <span className="font-mono text-xs font-medium tracking-[0.2em] text-white/40 uppercase">
             Project Monitor

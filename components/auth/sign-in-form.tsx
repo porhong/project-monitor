@@ -2,12 +2,12 @@
 
 import { useState, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
 import { AlertCircle, Eye, EyeOff } from "lucide-react"
 import { signIn } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import Image from "next/image"
 
 export function SignInForm() {
   const router = useRouter()
@@ -37,8 +37,14 @@ export function SignInForm() {
     <div className="animate-auth-fade-up w-full max-w-sm">
       {/* Mobile-only branding (hidden on desktop where left panel shows it) */}
       <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-        <div className="flex h-7 w-7 items-center justify-center rounded-sm border border-border bg-foreground/5">
-          <span className="font-mono text-[10px] font-bold tracking-widest">PM</span>
+        <div className="relative h-9 w-9">
+          <Image
+            width={36}
+            height={36}
+            src="/logo.webp"
+            alt="Project Monitor"
+            className="h-full w-full object-contain p-1"
+          />
         </div>
         <span className="font-mono text-xs font-medium tracking-[0.2em] text-muted-foreground uppercase">
           Project Monitor
@@ -63,7 +69,7 @@ export function SignInForm() {
         <div className="flex flex-col gap-1.5">
           <Label
             htmlFor="email"
-            className="text-[11px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
+            className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase"
           >
             Email
           </Label>
@@ -82,7 +88,7 @@ export function SignInForm() {
         <div className="flex flex-col gap-1.5">
           <Label
             htmlFor="password"
-            className="text-[11px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
+            className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase"
           >
             Password
           </Label>
@@ -108,7 +114,7 @@ export function SignInForm() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 pt-1">
+        <div className="pt-1">
           <Button
             type="submit"
             className="h-11 w-full font-mono text-sm tracking-wide"
@@ -116,16 +122,6 @@ export function SignInForm() {
           >
             {isPending ? "Signing in…" : "Sign In →"}
           </Button>
-
-          <p className="text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/sign-up"
-              className="font-medium text-foreground underline underline-offset-4 transition-opacity hover:opacity-70"
-            >
-              Create one
-            </Link>
-          </p>
         </div>
       </form>
     </div>

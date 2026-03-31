@@ -9,8 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TreemapSection } from "@/components/project-monitor/treemap-section"
+import { ModuleTable } from "@/components/project-monitor/module-table"
 import { DeleteProjectButton } from "@/components/project-monitor/delete-project-button"
 import type { Status } from "@/lib/types"
+import type { PdfReportData } from "@/lib/pdf/types"
 
 interface ProjectPageProps {
   params: Promise<{ id: string }>
@@ -83,6 +85,22 @@ export default async function ProjectPage({ params, searchParams }: ProjectPageP
   )
 
   const visibleStatuses = STATUS_ORDER.filter((s) => statusCounts[s] > 0)
+
+  const moduleRows = project.modules
+    .flatMap((mod) => {
+      const entry = selectedVersionEntries.find((e) => e.moduleId === mod.id)
+      if (!entry) return []
+      return [
+        {
+          id: mod.id,
+          name: mod.name,
+          description: entry.description || mod.description || "",
+          status: entry.status,
+          features: entry.moduleSize,
+        },
+      ]
+    })
+    .sort((a, b) => a.name.localeCompare(b.name))
 
   return (
     <div className="min-h-screen bg-background">
@@ -215,7 +233,31 @@ export default async function ProjectPage({ params, searchParams }: ProjectPageP
                 )}
 
                 {/* Treemap */}
-                <TreemapSection projects={[project]} selectedVersionId={selectedVersion.id} />
+                <TreemapSection
+                  projects={[project]}
+                  selectedVersionId={selectedVersion.id}
+                  reportData={
+                    {
+                      projectName: project.name,
+                      projectDescription: project.description ?? "",
+                      exportedAt: new Date().toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }),
+                      versionName: selectedVersion.name,
+                      activeModules: selectedVersionModuleCount,
+                      totalFeatures,
+                      statusCounts,
+                      moduleRows,
+                    } satisfies PdfReportData
+                  }
+                />
+
+                <Separator />
+
+                {/* Module Table */}
+                <ModuleTable rows={moduleRows} />
               </>
             ) : (
               <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">

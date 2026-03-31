@@ -22,5 +22,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|api|favicon.ico|sitemap.xml|robots.txt).*)"],
+  // Exclude Next internals, API routes, and public files (anything with an extension).
+  // This prevents auth redirects from breaking static assets like /logo.webp on public pages.
+  matcher: ["/((?!_next|api|.*\\..*).*)"],
 }

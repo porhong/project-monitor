@@ -62,7 +62,7 @@ export function SignUpForm() {
         <div className="flex flex-col gap-1.5">
           <Label
             htmlFor="name"
-            className="text-[11px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
+            className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase"
           >
             Full Name
           </Label>
@@ -81,7 +81,7 @@ export function SignUpForm() {
         <div className="flex flex-col gap-1.5">
           <Label
             htmlFor="email"
-            className="text-[11px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
+            className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase"
           >
             Email
           </Label>
@@ -100,7 +100,7 @@ export function SignUpForm() {
         <div className="flex flex-col gap-1.5">
           <Label
             htmlFor="password"
-            className="text-[11px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
+            className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase"
           >
             Password
           </Label>
